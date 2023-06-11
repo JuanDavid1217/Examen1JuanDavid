@@ -5,16 +5,11 @@
 package org.uv.examen1juandaviddelgadomunoz.converters;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.persistence.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.uv.examen1juandaviddelgadomunoz.models.Alumno;
 import org.uv.examen1juandaviddelgadomunoz.models.DTOGrupo;
 import org.uv.examen1juandaviddelgadomunoz.models.Grupo;
 import org.uv.examen1juandaviddelgadomunoz.models.Materia;
-import org.uv.examen1juandaviddelgadomunoz.repository.RepositoryAlumno;
-import org.uv.examen1juandaviddelgadomunoz.repository.RepositoryMateria;
 
 /**
  *
