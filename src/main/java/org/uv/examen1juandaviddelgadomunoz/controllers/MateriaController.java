@@ -4,7 +4,6 @@
  */
 package org.uv.examen1juandaviddelgadomunoz.controllers;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +28,9 @@ public class MateriaController {
     private RepositoryMateria repositoryMateria;
     
     private MateriaConverter converter=new MateriaConverter();
-     
+    
+    private String materiaexception= "Materia no encontrada con ID: ";
+    
     @GetMapping("/")
     public List<DTOMateria> getMateiras(){
         return converter.listconvertDTO((List<Materia>) repositoryMateria.findAll());
@@ -37,7 +38,7 @@ public class MateriaController {
      
     @GetMapping("/{id}")
     public DTOMateria getMateria(@PathVariable("id") Long id) {
-        Materia m=repositoryMateria.findById(id).orElseThrow(() -> new RuntimeException("Materia no encontrada con ID: " + id));
+        Materia m=repositoryMateria.findById(id).orElseThrow(() -> new RuntimeException(materiaexception + id));
         
         return converter.convertDTO(m); 
          
@@ -52,7 +53,7 @@ public class MateriaController {
     
     @PutMapping("/{id}")
     public DTOMateria updateMateria(@PathVariable("id") Long id, @RequestBody DTOMateria materia){
-        Materia m=repositoryMateria.findById(id).orElseThrow(() -> new RuntimeException("Materia no encontrada con ID: " + id));
+        Materia m=repositoryMateria.findById(id).orElseThrow(() -> new RuntimeException(materiaexception + id));
         Materia ma=converter.convertEntity(materia);
         ma.setID(m.getId());
         ma=repositoryMateria.save(ma);
@@ -61,7 +62,7 @@ public class MateriaController {
     
     @DeleteMapping("/{id}")
     public void deleteAlumno(@PathVariable("id") Long id) {
-        Materia m=repositoryMateria.findById(id).orElseThrow(() -> new RuntimeException("Materia no encontrada con ID: " + id));
+        Materia m=repositoryMateria.findById(id).orElseThrow(() -> new RuntimeException(materiaexception + id));
         
         if(m!=null){
             repositoryMateria.deleteById(id);

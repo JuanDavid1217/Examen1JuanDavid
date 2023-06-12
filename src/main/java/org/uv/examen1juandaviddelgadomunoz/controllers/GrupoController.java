@@ -4,7 +4,6 @@
  */
 package org.uv.examen1juandaviddelgadomunoz.controllers;
 import java.util.List;
-import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -40,7 +39,10 @@ public class GrupoController {
     @Autowired
     private RepositoryMateria repositoryMateria;
     
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("simpleJPA");
+    
+    private String alumno= "Alumno no encontrado con ID: ";
+    private String materia= "Materia no encontrada con ID: ";
+    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("simpleJPA");
     
     
     private GrupoConverter converter=new GrupoConverter();
@@ -64,9 +66,9 @@ public class GrupoController {
     
     @PostMapping("/")
     public DTOGrupo saveGrupo(@RequestBody DTOGrupo grupo) {
-        Alumno a=repositoryAlumno.findById(grupo.getClaveAlumno()).orElseThrow(() -> new RuntimeException("Alumno no encontrado con ID: " + grupo.getClaveAlumno()));
+        Alumno a=repositoryAlumno.findById(grupo.getClaveAlumno()).orElseThrow(() -> new RuntimeException(alumno + grupo.getClaveAlumno()));
         
-        Materia m=repositoryMateria.findById(grupo.getClaveMateria()).orElseThrow(() -> new RuntimeException("Materia no encontrada con ID: " + grupo.getClaveMateria()));
+        Materia m=repositoryMateria.findById(grupo.getClaveMateria()).orElseThrow(() -> new RuntimeException(materia + grupo.getClaveMateria()));
         
         Grupo g=converter.convertEntityGrupo(grupo, a, m);
         g=repositoryGrupo.save(g);

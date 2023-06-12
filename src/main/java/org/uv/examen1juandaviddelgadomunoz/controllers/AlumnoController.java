@@ -5,7 +5,6 @@
 package org.uv.examen1juandaviddelgadomunoz.controllers;
 
 import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +30,8 @@ public class AlumnoController {
     private RepositoryAlumno repositoryAlumno;
 
     private AlumnoConverter converter=new AlumnoConverter();
+    
+    private String alumnoexception= "Alumno no encontrado con ID: ";
      
     @GetMapping("/")
     public List<DTOAlumno> getAlumnos(){
@@ -39,7 +40,7 @@ public class AlumnoController {
      
     @GetMapping("/{id}")
     public DTOAlumno getAlumno(@PathVariable("id") Long id) {
-        Alumno a=repositoryAlumno.findById(id).orElseThrow(() -> new RuntimeException("Alumno no encontrado con ID: " + id));
+        Alumno a=repositoryAlumno.findById(id).orElseThrow(() -> new RuntimeException(alumnoexception + id));
         
         return converter.convertDTO(a);
          
@@ -54,7 +55,7 @@ public class AlumnoController {
     
     @PutMapping("/{id}")
     public DTOAlumno updateAlumno(@PathVariable("id") Long id, @RequestBody DTOAlumno alumno){
-        Alumno a=repositoryAlumno.findById(id).orElseThrow(() -> new RuntimeException("Alumno no encontrado con ID: " + id));
+        Alumno a=repositoryAlumno.findById(id).orElseThrow(() -> new RuntimeException(alumnoexception + id));
         Alumno alum=converter.convertEntity(alumno);
         alum.setId(a.getId());
         alum=repositoryAlumno.save(alum);
@@ -63,7 +64,7 @@ public class AlumnoController {
     
     @DeleteMapping("/{id}")
     public void deleteAlumno(@PathVariable("id") Long id) {
-        Alumno a=repositoryAlumno.findById(id).orElseThrow(() -> new RuntimeException("Alumno no encontrado con ID: " + id));
+        Alumno a=repositoryAlumno.findById(id).orElseThrow(() -> new RuntimeException(alumnoexception + id));
         if(a!=null){
             repositoryAlumno.deleteById(id);
         }
