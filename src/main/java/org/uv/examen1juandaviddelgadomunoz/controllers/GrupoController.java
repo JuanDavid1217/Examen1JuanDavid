@@ -41,7 +41,7 @@ public class GrupoController {
     private RepositoryMateria repositoryMateria;
     
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("simpleJPA");
-    EntityManager entityManager = emf.createEntityManager();
+    
     
     private GrupoConverter converter=new GrupoConverter();
     
@@ -53,31 +53,22 @@ public class GrupoController {
      
     @GetMapping("/{clave_alumno}")
     public List<DTOGrupo> getGruposbyAlumno(@PathVariable("clave_alumno") Long claveAlumno) {
+        EntityManager entityManager = emf.createEntityManager();
         String jpql = "SELECT g FROM Grupo g WHERE g.alumno.clave = :clave";
         Query query = entityManager.createQuery(jpql);
         query.setParameter("clave", claveAlumno);
-        return query.getResultList();
+        List<DTOGrupo> lista=query.getResultList();
+        entityManager.close();
+        return lista;
     }
     
     @PostMapping("/")
     public DTOGrupo saveGrupo(@RequestBody DTOGrupo grupo) {
-        Optional<Alumno> a=repositoryAlumno.findById(grupo.getClaveAlumno());
-        Alumno alumno=a.map(alum->{
-            Alumno al=new Alumno();
-            al.setId(alum.getId());
-            al.setNombre(alum.getNombre());
-            al.setDireccion(alum.getDireccion());
-            al.setTelefono(alum.getTelefono());
-            return al;
-        }).orElse(null);
-        Optional<Materia> m=repositoryMateria.findById(grupo.getClaveMateria());
-        Materia materia=m.map(mat->{
-            Materia ma=new Materia();
-            ma.setID(mat.getId());
-            ma.setNombreMateria(mat.getNombreMateria());
-            return ma;
-        }).orElse(null);
-        Grupo g=converter.convertEntityGrupo(grupo, alumno, materia);
+        Alumno a=repositoryAlumno.findById(grupo.getClaveAlumno()).orElseThrow(() -> new RuntimeException("Alumno no encontrado con ID: " + grupo.getClaveAlumno()));
+        
+        Materia m=repositoryMateria.findById(grupo.getClaveMateria()).orElseThrow(() -> new RuntimeException("Materia no encontrada con ID: " + grupo.getClaveMateria()));
+        
+        Grupo g=converter.convertEntityGrupo(grupo, a, m);
         g=repositoryGrupo.save(g);
         return converter.convertDTO(g);
     }
@@ -86,31 +77,38 @@ public class GrupoController {
     public Object updateGrupo(@PathVariable("clave_alumno") Long claveAlumno,
                                 @PathVariable("clave_materia") Long claveMateria,
                                 @RequestBody DTOGrupo grupo){
+        EntityManager entityManager = emf.createEntityManager();
         entityManager.getTransaction().begin();
-        String jpsql="UPDATE Grupo g SET g.nombre_grupo = :nombre_grupo WHERE g.alumno.clave = :clave_alumno AND g.materia.clave_materia = :clave_materia";
+        String jpsql="UPDATE Grupo g SET g.nombreGrupo = :nombre_grupo WHERE g.alumno.clave = :clave_alumno AND g.materia.claveMateria = :clave_materia";
         Query query=entityManager.createQuery(jpsql);
         query.setParameter("nombre_grupo", grupo.getNombre());
         query.setParameter("clave_alumno", claveAlumno);
         query.setParameter("clave_materia", claveMateria);
         query.executeUpdate();
         entityManager.getTransaction().commit();
-
-        jpsql="SELECT g FROM Grupo g WHERE g.alumno.clave=:clave_alumno AND g.materia.clave_materia=:clave_materia";
+        
+  
+        jpsql="SELECT g FROM Grupo g WHERE g.alumno.clave=:clave_alumno AND g.materia.claveMateria=:clave_materia";
         query=entityManager.createQuery(jpsql);
         query.setParameter("clave_alumno", claveAlumno);
         query.setParameter("clave_materia", claveMateria);
-        return query.getSingleResult();
+        Object a = query.getSingleResult();
+        entityManager.close();
+        return a;
     }
     
     @DeleteMapping("/{clave_alumno}/{clave_materia}")
     public void deleteGrupo(@PathVariable("clave_alumno") Long claveAlumno,
                             @PathVariable("clave_materia") Long claveMateria) {
+        EntityManager entityManager = emf.createEntityManager();
         entityManager.getTransaction().begin();
-        String jpsql="DELETE Grupo g WHERE g.alumno.clave=:alumno AND g.materia.clave_materia=:materia";
+        String jpsql="DELETE Grupo g WHERE g.alumno.clave=:alumno AND g.materia.claveMateria=:materia";
         Query query=entityManager.createQuery(jpsql);
         query.setParameter("alumno", claveAlumno);
         query.setParameter("materia", claveMateria);
         query.executeUpdate();
         entityManager.getTransaction().commit();
+        entityManager.close();
+        
     } 
 }

@@ -37,15 +37,9 @@ public class MateriaController {
      
     @GetMapping("/{id}")
     public DTOMateria getMateria(@PathVariable("id") Long id) {
-        Optional<Materia> m=repositoryMateria.findById(id);
-        Materia materia=m.map(ma->{
-            Materia mat=new Materia();
-            mat.setID(ma.getId());
-            mat.setNombreMateria(ma.getNombreMateria());
-            return mat;
-        }).orElse(null);
+        Materia m=repositoryMateria.findById(id).orElseThrow(() -> new RuntimeException("Materia no encontrada con ID: " + id));
         
-        return converter.convertDTO(materia); 
+        return converter.convertDTO(m); 
          
     }
     
@@ -58,22 +52,18 @@ public class MateriaController {
     
     @PutMapping("/{id}")
     public DTOMateria updateMateria(@PathVariable("id") Long id, @RequestBody DTOMateria materia){
-        Materia m=converter.convertEntity(materia);
-        m.setID(id);
-        m=repositoryMateria.save(m);
-        return converter.convertDTO(m);
+        Materia m=repositoryMateria.findById(id).orElseThrow(() -> new RuntimeException("Materia no encontrada con ID: " + id));
+        Materia ma=converter.convertEntity(materia);
+        ma.setID(m.getId());
+        ma=repositoryMateria.save(ma);
+        return converter.convertDTO(ma);
     }
     
     @DeleteMapping("/{id}")
     public void deleteAlumno(@PathVariable("id") Long id) {
-        Optional<Materia> m=repositoryMateria.findById(id);
-        Materia materia=m.map(ma->{
-            Materia mat=new Materia();
-            mat.setID(ma.getId());
-            mat.setNombreMateria(ma.getNombreMateria());
-            return mat;
-        }).orElse(null);
-        if(materia!=null){
+        Materia m=repositoryMateria.findById(id).orElseThrow(() -> new RuntimeException("Materia no encontrada con ID: " + id));
+        
+        if(m!=null){
             repositoryMateria.deleteById(id);
         }
     } 

@@ -39,17 +39,9 @@ public class AlumnoController {
      
     @GetMapping("/{id}")
     public DTOAlumno getAlumno(@PathVariable("id") Long id) {
-        Optional<Alumno> a=repositoryAlumno.findById(id);
-        Alumno alumno=a.map(alum->{
-            Alumno al=new Alumno();
-            al.setId(alum.getId());
-            al.setNombre(alum.getNombre());
-            al.setDireccion(alum.getDireccion());
-            al.setTelefono(alum.getTelefono());
-            return al;
-        }).orElse(null);
+        Alumno a=repositoryAlumno.findById(id).orElseThrow(() -> new RuntimeException("Alumno no encontrado con ID: " + id));
         
-        return converter.convertDTO(alumno);
+        return converter.convertDTO(a);
          
     }
     
@@ -62,24 +54,17 @@ public class AlumnoController {
     
     @PutMapping("/{id}")
     public DTOAlumno updateAlumno(@PathVariable("id") Long id, @RequestBody DTOAlumno alumno){
-        Alumno a=converter.convertEntity(alumno);
-        a.setId(id);
-        a=repositoryAlumno.save(a);
-        return converter.convertDTO(a);
+        Alumno a=repositoryAlumno.findById(id).orElseThrow(() -> new RuntimeException("Alumno no encontrado con ID: " + id));
+        Alumno alum=converter.convertEntity(alumno);
+        alum.setId(a.getId());
+        alum=repositoryAlumno.save(alum);
+        return converter.convertDTO(alum);
     }
     
     @DeleteMapping("/{id}")
     public void deleteAlumno(@PathVariable("id") Long id) {
-        Optional<Alumno> a=repositoryAlumno.findById(id);
-        Alumno alumno=a.map(alum->{
-            Alumno al=new Alumno();
-            al.setId(alum.getId());
-            al.setNombre(alum.getNombre());
-            al.setDireccion(alum.getDireccion());
-            al.setTelefono(alum.getTelefono());
-            return al;
-        }).orElse(null);
-        if(alumno!=null){
+        Alumno a=repositoryAlumno.findById(id).orElseThrow(() -> new RuntimeException("Alumno no encontrado con ID: " + id));
+        if(a!=null){
             repositoryAlumno.deleteById(id);
         }
     }
